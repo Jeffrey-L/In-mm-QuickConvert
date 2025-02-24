@@ -1,408 +1,1274 @@
 <!DOCTYPE html>
+<!-- Declares this document as HTML5, setting the foundation for the webpage structure -->
+
 <html lang="en">
 <head>
+    <!-- Defines the head section of the HTML document, containing metadata and document-level information -->
     <meta charset="UTF-8">
+    <!-- Specifies the character encoding as UTF-8, supporting a wide range of characters and symbols -->
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Configures the viewport for responsive design, ensuring the page scales correctly on different devices by setting the initial zoom level and width to match the device's screen -->
+
     <title>Length Converter</title>
+    <!-- Sets the title of the webpage, displayed in the browser tab and used for bookmarks and search engine results -->
+
     <style>
+        /* Begins the CSS styling section, contained within the <style> tag for internal styling of the document */
+
         body {
+            /* Styles the entire body of the webpage */
             font-family: Arial, sans-serif;
+            /* Sets the font to Arial as the primary choice, with sans-serif as a fallback for broad compatibility */
+
             display: flex;
+            /* Uses Flexbox for layout, enabling flexible and responsive positioning of child elements */
+
             height: 100vh;
+            /* Sets the height to 100% of the viewport height, ensuring the body fills the entire screen vertically */
+
             margin: 0;
+            /* Removes default margins to prevent unwanted spacing around the page */
+
             background-color: #333;
+            /* Sets a dark gray background color for the body, providing a dark theme */
+
             color: #fff;
+            /* Sets the default text color to white, ensuring readability against the dark background */
+
             transition: background-color 0.3s, color 0.3s;
-        }
-        .history-panel {
-            width: 300px;
-            background: #444;
-            padding: 15px;
-            border-right: 1px solid #777;
-            overflow-y: auto;
-            transition: background-color 0.3s, color 0.3s;
-        }
-        .history-panel h3 {
-            margin: 0 0 10px 0;
-            font-size: 16px;
-            text-align: center;
-            color: #ccc;
-        }
-        .history-item {
-            background: #555;
-            border: 1px solid #666;
-            border-radius: 5px;
-            padding: 10px;
-            margin: 10px 0;
-            box-shadow: 0 1px 3px rgba(255,255,255,0.1);
-        }
-        .history-timestamp {
-            font-size: 12px;
-            color: #bbb;
-            margin-bottom: 5px;
-        }
-        .history-input {
-            font-size: 14px;
-            font-weight: bold;
-            color: #eee;
-            margin: 0;
-        }
-        .history-conversions {
-            font-size: 13px;
-            color: #ccc;
-            margin-top: 5px;
-        }
-        .history-conversions .inch {
-            color: #66b3ff;
-            font-weight: bold;
-        }
-        .history-conversions .mm {
-            color: #ff6666;
-            font-weight: bold;
-        }
-        .converter {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            margin: 20px;
-        }
-        .input-container {
+            /* Adds smooth transitions for background color and text color changes, used for dark/light mode toggling */
+
             position: relative;
-            display: inline-block;
-        }
-        input[type="text"] {
-            width: 150px;
-            padding: 8px;
-            font-size: 16px;
-            margin: 10px 0;
-            border: 1px solid #777;
-            border-radius: 4px;
-            background: #555;
-            color: #fff;
-        }
-        .result {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-top: 20px;
-            width: 100%;
-            max-width: 400px;
-        }
-        .main-card {
-            background: #555;
-            border: 1px solid #666;
-            border-radius: 5px;
-            padding: 15px;
-            box-shadow: 0 2px 5px rgba(255,255,255,0.1);
-        }
-        .main-card-title {
-            font-size: 16px;
-            margin-bottom: 10px;
-            color: #ddd;
-        }
-        .sub-cards {
-            display: flex;
-            gap: 10px;
-        }
-        .sub-card {
-            flex: 1;
-            background: #666;
-            border: 1px solid #777;
-            border-radius: 3px;
-            padding: 8px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-            white-space: nowrap;
+            /* Positions the body relatively to allow absolute positioning of child elements (e.g., footer, copyright) within it */
+
             overflow: hidden;
-            text-overflow: ellipsis;
-            position: relative;
+            /* Prevents scroll bars on the body, ensuring only the history panel can scroll */
         }
-        .sub-card:hover {
-            background: #777;
+
+        .history-panel {
+            /* Styles the left panel displaying the history of conversions */
+            width: 340px;
+            /* Sets a fixed width of 340 pixels for the history panel */
+
+            background: #444;
+            /* Sets a darker gray background for the panel, consistent with the dark theme */
+
+            padding: 15px;
+            /* Adds 15 pixels of padding inside the panel for spacing around content */
+
+            overflow-y: auto;
+            /* Allows vertical scrolling if content exceeds the panel height, but not horizontal scrolling */
+
+            transition: background-color 0.3s, color 0.3s;
+            /* Smoothly transitions background and text color changes for dark/light mode */
+
+            display: flex;
+            /* Uses Flexbox to layout children vertically */
+
+            flex-direction: column;
+            /* Arranges child elements vertically (top to bottom) */
+
+            gap: 10px;
+            /* Adds 10 pixels of spacing between child elements for better separation */
+
+            box-sizing: border-box;
+            /* Ensures padding is included in the total width/height, preventing overflow */
+
+            scrollbar-width: thin;
+            /* Sets a thin scrollbar for Firefox, enhancing aesthetics */
+
+            scrollbar-color: #666 #444;
+            /* Customizes Firefox scrollbar colors: thumb (gray) and track (darker gray) */
         }
-        .inch {
-            color: #66b3ff;
+
+        .history-panel::-webkit-scrollbar {
+            /* Styles the scrollbar for Webkit browsers (e.g., Chrome, Safari) */
+            width: 8px;
+            /* Sets the scrollbar width to 8 pixels for a thin, subtle appearance */
         }
-        .mm {
-            color: #ff6666;
+
+        .history-panel::-webkit-scrollbar-track {
+            /* Styles the scrollbar track (background) for Webkit browsers */
+            background: #444;
+            /* Matches the panel background for a seamless look */
         }
-        /* Tooltip Styles */
-        .tooltip {
-            position: relative;
-        }
-        .tooltip .tooltip-text {
-            visibility: hidden;
-            width: 120px;
-            background: #222;
-            color: #fff;
-            text-align: center;
+
+        .history-panel::-webkit-scrollbar-thumb {
+            /* Styles the scrollbar thumb (draggable part) for Webkit browsers */
+            background: #666;
+            /* Sets a medium gray for the thumb, contrasting slightly with the track */
+
             border-radius: 4px;
-            padding: 5px;
+            /* Adds rounded corners to the thumb for a modern look */
+        }
+
+        .history-scroll {
+            /* Styles the scrollable area within the history panel */
+            flex-grow: 1;
+            /* Allows this element to expand to fill available vertical space */
+
+            overflow-y: auto;
+            /* Enables vertical scrolling for content exceeding the height */
+
+            overflow-x: hidden;
+            /* Prevents horizontal scrolling, ensuring content fits within 340px width */
+        }
+
+        .history-panel h3 {
+            /* Styles the "Input History" heading in the history panel */
+            margin: 0;
+            /* Removes default margins for a compact layout */
+
+            font-size: 16px;
+            /* Sets the font size to 16 pixels for readability */
+
+            text-align: center;
+            /* Centers the text horizontally for visual balance */
+
+            color: #ccc;
+            /* Uses a light gray color for the heading, ensuring contrast against the dark background */
+        }
+
+        .history-controls {
+            /* Styles the container for the clear history button */
+            display: flex;
+            /* Uses Flexbox to layout the button */
+
+            justify-content: center;
+            /* Centers the button horizontally within the container */
+
+            margin-top: 10px;
+            /* Adds 10 pixels of spacing above the button for separation */
+        }
+
+        .clear-history {
+            /* Styles the "Clear History" button */
+            background: #007BFF;
+            /* Sets a blue background for the button, indicating interactivity */
+
+            color: white;
+            /* Sets white text for readability against the blue background */
+
+            padding: 5px 10px;
+            /* Adds padding for a comfortable button size (5px top/bottom, 10px left/right) */
+
+            border-radius: 4px;
+            /* Rounds the button corners slightly for a modern look */
+
+            border: none;
+            /* Removes default border for a clean appearance */
+
+            cursor: pointer;
+            /* Changes the cursor to a pointing hand on hover, indicating clickability */
+
             font-size: 12px;
+            /* Sets the text size to 12 pixels for compactness */
+        }
+
+        .clear-history:hover {
+            /* Styles the button on hover for interactivity */
+            background: #0056b3;
+            /* Darkens the blue background for visual feedback */
+        }
+
+        .history-item {
+            /* Styles each history entry card */
+            background: #555;
+            /* Sets a medium gray background for the card, matching the theme */
+
+            border: 1px solid #666;
+            /* Adds a light gray border for definition */
+
+            border-radius: 5px;
+            /* Rounds the card corners for a modern look */
+
+            padding: 8px;
+            /* Adds internal spacing for content */
+
+            box-shadow: 0 1px 3px rgba(255,255,255,0.1);
+            /* Adds a subtle white shadow for depth */
+
+            position: relative;
+            /* Allows absolute positioning of child elements (e.g., timestamp) */
+
+            margin: 5px 0;
+            /* Adds vertical margins for spacing between cards */
+
+            display: flex;
+            /* Uses Flexbox for vertical layout of content */
+
+            flex-direction: column;
+            /* Stacks child elements vertically */
+
+            align-items: stretch;
+            /* Ensures child elements stretch to fill the card width */
+        }
+
+        .history-timestamp {
+            /* Styles the timestamp in each history card */
             position: absolute;
-            z-index: 1;
+            /* Positions the timestamp relative to the .history-item */
+
+            top: 5px;
+            /* Places it 5 pixels from the top */
+
+            right: 10px;
+            /* Places it 10 pixels from the right */
+
+            font-size: 10px;
+            /* Sets a small font size for compactness */
+
+            color: #bbb;
+            /* Uses a light gray color for contrast against the dark card */
+        }
+
+        .history-input {
+            /* Styles the input equation display in each history card */
+            font-size: 12px;
+            /* Sets the font size for readability */
+
+            font-weight: bold;
+            /* Makes the text bold for emphasis */
+
+            color: #eee;
+            /* Uses a very light gray for contrast against the dark background */
+
+            margin-bottom: 5px;
+            /* Adds spacing below the input for separation */
+
+            text-align: left;
+            /* Centers the text for visual balance */
+
+            width: 100%;
+            /* Ensures the text spans the full width of the card */
+        }
+
+        .history-conversions {
+            /* Styles the conversions section within each history card */
+            width: 100%;
+            /* Ensures the section spans the full card width */
+
+            display: flex;
+            /* Uses Flexbox for layout */
+
+            flex-direction: column;
+            /* Stacks conversion rows vertically */
+
+            gap: 5px;
+            /* Adds 5 pixels of spacing between conversion rows */
+        }
+
+        .history-conversions .conversion-row {
+            /* Styles each row of conversions (If in: and If mm:) */
+            display: flex;
+            /* Uses Flexbox for horizontal layout */
+
+            justify-content: space-between;
+            /* Distributes space between label and sub-cards, pushing them apart */
+
+            align-items: center;
+            /* Vertically aligns items in the row */
+        }
+
+        .history-conversions .label {
+            /* Styles the labels (e.g., "If in:", "If mm:") */
+            font-size: 12px;
+            /* Sets the font size for readability */
+
+            color: #ddd;
+            /* Uses a light gray for contrast against the dark card */
+
+            margin-right: 10px;
+            /* Adds spacing to the right of the label for separation */
+
+            flex-shrink: 0;
+            /* Prevents the label from shrinking, maintaining its width */
+
+            max-width: 60px;
+            /* Limits the label width to prevent pushing content too far */
+        }
+
+        .history-conversions .sub-cards {
+            /* Styles the container for sub-cards (inch and mm values) */
+            display: flex;
+            /* Uses Flexbox for horizontal layout */
+
+            gap: 5px;
+            /* Adds 5 pixels of spacing between sub-cards */
+
+            justify-content: flex-end;
+            /* Aligns sub-cards to the right of the row */
+
+            flex-grow: 1;
+            /* Allows sub-cards to expand to fill available space */
+
+            min-width: 0;
+            /* Allows sub-cards to shrink below their natural width to fit */
+        }
+
+        .history-conversions .sub-card {
+            /* Styles each clickable sub-card (e.g., inch or mm value) */
+            flex: 0 1 auto;
+            /* Allows the card to shrink or grow, but defaults to natural size */
+
+            min-width: 0;
+            /* Prevents intrinsic width from causing overflow */
+
+            background: #666;
+            /* Sets a medium gray background for the sub-card */
+
+            border: 1px solid #777;
+            /* Adds a slightly darker gray border for definition */
+
+            border-radius: 3px;
+            /* Rounds the corners slightly for a modern look */
+
+            padding: 4px;
+            /* Adds internal spacing for content */
+
+            font-size: 12px;
+            /* Sets the font size for readability */
+
+            cursor: pointer;
+            /* Changes the cursor to a hand on hover, indicating clickability */
+
+            transition: background-color 0.2s;
+            /* Smoothly transitions the background color on hover */
+
+            white-space: normal;
+            /* Allows text to wrap if it exceeds the width */
+
+            overflow: visible;
+            /* Ensures text isn’t hidden or truncated, displaying fully */
+
+            text-align: right;
+            /* Aligns text to the right, consistent with the layout */
+
+            position: relative;
+            /* Allows absolute positioning of tooltip */
+        }
+
+        .history-conversions .sub-card:hover {
+            /* Styles the sub-card on hover for interactivity */
+            background: #777;
+            /* Darkens the background slightly for visual feedback */
+        }
+
+        .converter {
+            /* Styles the main converter area on the right */
+            flex-grow: 1;
+            /* Allows the converter to expand to fill available space */
+
+            display: flex;
+            /* Uses Flexbox for layout */
+
+            flex-direction: column;
+            /* Stacks child elements vertically */
+
+            justify-content: center;
+            /* Centers child elements vertically within the panel */
+
+            align-items: center;
+            /* Centers child elements horizontally within the panel */
+
+            padding: 20px;
+            /* Adds internal spacing for content */
+
+            margin: 20px;
+            /* Adds external spacing around the converter for separation */
+
+            overflow: hidden;
+            /* Prevents scroll bars in the converter area */
+        }
+
+        .input-container {
+            /* Styles the container for the input field */
+            position: relative;
+            /* Allows absolute positioning of tooltip */
+
+            display: inline-block;
+            /* Makes the container wrap only its content */
+        }
+
+        input[type="text"] {
+            /* Styles the input field for length entries */
+            width: 150px;
+            /* Sets a fixed width for the input */
+
+            padding: 8px;
+            /* Adds internal spacing for usability */
+
+            font-size: 16px;
+            /* Sets the font size for readability */
+
+            margin: 10px 0;
+            /* Adds vertical margins for spacing */
+
+            border: 1px solid #777;
+            /* Adds a light gray border for definition */
+
+            border-radius: 4px;
+            /* Rounds the corners slightly for a modern look */
+
+            background: #555;
+            /* Sets a medium gray background for the input */
+
+            color: #fff;
+            /* Sets white text for readability against the dark background */
+
+            max-width: 100%;
+            /* Allows the input to scale with the container if needed */
+        }
+
+        .result {
+            /* Styles the container for main conversion results */
+            display: flex;
+            /* Uses Flexbox for layout */
+
+            flex-direction: column;
+            /* Stacks result cards vertically */
+
+            gap: 15px;
+            /* Adds 15 pixels of spacing between result cards */
+
+            margin-top: 20px;
+            /* Adds spacing above the results for separation */
+
+            width: 100%;
+            /* Ensures the results span the full width of the converter */
+
+            max-width: 400px;
+            /* Limits the maximum width for a consistent layout */
+
+            min-width: 0;
+            /* Allows the results to shrink below their natural width */
+        }
+
+        .main-card {
+            /* Styles each main result card (If input is inches/mm) */
+            background: #555;
+            /* Sets a medium gray background for the card */
+
+            border: 1px solid #666;
+            /* Adds a light gray border for definition */
+
+            border-radius: 5px;
+            /* Rounds the corners for a modern look */
+
+            padding: 20px;
+            /* Adds internal spacing for content */
+
+            box-shadow: 0 2px 5px rgba(255,255,255,0.1);
+            /* Adds a subtle white shadow for depth */
+
+            display: flex;
+            /* Uses Flexbox for layout */
+
+            flex-direction: column;
+            /* Stacks child elements vertically */
+
+            align-items: center;
+            /* Centers child elements horizontally */
+
+            min-width: 0;
+            /* Allows the card to shrink below its natural width */
+        }
+
+        .main-card-title {
+            /* Styles the title within each main card (e.g., If input is inches) */
+            font-size: 16px;
+            /* Sets the font size for readability */
+
+            margin-bottom: 15px;
+            /* Adds spacing below the title for separation */
+
+            color: #ddd;
+            /* Uses a light gray for contrast against the dark card */
+
+            text-align: center;
+            /* Centers the text for visual balance */
+
+            width: 100%;
+            /* Ensures the title spans the full card width */
+        }
+
+        .sub-cards {
+            /* Styles the container for sub-cards (inch and mm values) within main cards */
+            display: flex;
+            /* Uses Flexbox for horizontal layout */
+
+            gap: 15px;
+            /* Adds 15 pixels of spacing between sub-cards */
+
+            justify-content: center;
+            /* Centers sub-cards horizontally within the main card */
+
+            width: 100%;
+            /* Ensures sub-cards span the full width of the main card */
+
+            min-width: 0;
+            /* Allows sub-cards to shrink below their natural width */
+        }
+
+        .sub-card {
+            /* Styles each clickable sub-card (e.g., inch or mm value) in main results */
+            flex: 1;
+            /* Allows the card to expand to fill available space equally */
+
+            min-width: 0;
+            /* Prevents intrinsic width from causing overflow */
+
+            background: #666;
+            /* Sets a medium gray background for the sub-card */
+
+            border: 1px solid #777;
+            /* Adds a slightly darker gray border for definition */
+
+            border-radius: 3px;
+            /* Rounds the corners slightly for a modern look */
+
+            padding: 12px;
+            /* Adds internal spacing for content */
+
+            font-size: 16px;
+            /* Sets the font size for readability */
+
+            cursor: pointer;
+            /* Changes the cursor to a hand on hover, indicating clickability */
+
+            transition: background-color 0.2s;
+            /* Smoothly transitions the background color on hover */
+
+            white-space: normal;
+            /* Allows text to wrap if it exceeds the width */
+
+            overflow: visible;
+            /* Ensures text isn’t hidden or truncated, displaying fully */
+
+            text-align: center;
+            /* Centers the text for visual balance */
+
+            position: relative;
+            /* Allows absolute positioning of tooltip */
+
+            z-index: auto;
+            /* Sets a base z-index to prevent overlap issues */
+        }
+
+        .sub-card:hover {
+            /* Styles the sub-card on hover for interactivity */
+            background: #777;
+            /* Darkens the background slightly for visual feedback */
+        }
+
+        .inch {
+            /* Styles text for inch values */
+            color: #66b3ff;
+            /* Sets a blue color for inches, distinct from millimeters */
+        }
+
+        .mm {
+            /* Styles text for millimeter values */
+            color: #ff6666;
+            /* Sets a red color for millimeters, distinct from inches */
+        }
+
+        .tooltip {
+            /* Styles the container for tooltips (hover text) */
+            position: relative;
+            /* Allows absolute positioning of tooltip text within this container */
+        }
+
+        .tooltip .tooltip-text {
+            /* Styles the tooltip text that appears on hover */
+            visibility: hidden;
+            /* Hides the tooltip by default */
+
+            width: 80px;
+            /* Sets a fixed width for the tooltip text */
+
+            background: #222;
+            /* Sets a dark background for the tooltip, contrasting with the card */
+
+            color: #fff;
+            /* Sets white text for readability against the dark background */
+
+            text-align: center;
+            /* Centers the text within the tooltip */
+
+            border-radius: 4px;
+            /* Rounds the tooltip corners for a modern look */
+
+            padding: 5px;
+            /* Adds internal spacing for the text */
+
+            font-size: 12px;
+            /* Sets a small font size for compactness */
+
+            position: absolute;
+            /* Positions the tooltip relative to its parent (.tooltip) */
+
+            z-index: 1000;
+            /* Ensures the tooltip appears above other elements, avoiding overlap */
+
             bottom: 125%;
+            /* Positions the tooltip above the element (125% of its height upward) */
+
             left: 50%;
-            margin-left: -60px;
+            /* Centers the tooltip horizontally over the element */
+
+            margin-left: -40px;
+            /* Adjusts the horizontal position to center the 80px tooltip */
+
             opacity: 0;
+            /* Starts with no opacity, making it invisible until hovered */
+
             transition: opacity 0.2s;
+            /* Smoothly transitions the opacity for a fade effect */
         }
+
         .tooltip:hover .tooltip-text {
+            /* Shows the tooltip text on hover */
             visibility: visible;
+            /* Makes the tooltip visible */
+
             opacity: 1;
+            /* Sets full opacity for visibility */
         }
+
         .sub-card .tooltip-text {
+            /* Adjusts tooltip positioning for sub-cards specifically */
             bottom: auto;
+            /* Removes bottom positioning, defaulting to top */
+
             top: 125%;
+            /* Positions the tooltip below the sub-card (125% downward) */
         }
+
         .light-mode {
+            /* Styles for light mode, toggled via JavaScript */
             background-color: #f0f0f0;
+            /* Sets a light gray background for the body */
+
             color: #000;
+            /* Sets black text for readability against the light background */
         }
-        .light-mode .converter {
-            background: white;
-        }
+
         .light-mode .history-panel {
+            /* Styles the history panel in light mode */
             background: #fff;
-            border-right: 1px solid #ccc;
+            /* Sets a white background for contrast */
+
+            scrollbar-color: #ccc #fff;
+            /* Customizes Firefox scrollbar: light gray thumb, white track */
         }
+
         .light-mode .history-item {
+            /* Styles history items in light mode */
             background: #f9f9f9;
+            /* Sets a very light gray background for the card */
+
             border: 1px solid #ddd;
+            /* Adds a light gray border for definition */
+
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            /* Adds a subtle black shadow for depth */
         }
+
         .light-mode .history-timestamp {
+            /* Styles timestamps in light mode */
             color: #666;
+            /* Uses a medium gray for contrast against the light card */
         }
+
         .light-mode .history-input {
-            color: #222;
+            /* Styles input equations in light mode */
+            color: #000;
+            /* Sets black text for readability against the light background */
         }
-        .light-mode .history-conversions {
-            color: #444;
+
+        .light-mode .history-conversions .label,
+        .light-mode .main-card-title {
+            /* Styles labels and titles in light mode */
+            color: #333;
+            /* Uses a dark gray for contrast against the light background */
         }
+
         .light-mode .history-conversions .inch,
         .light-mode .sub-card .inch {
+            /* Styles inch values in light mode */
             color: #007BFF;
+            /* Sets a blue color, consistent with dark mode but on light background */
         }
+
         .light-mode .history-conversions .mm,
         .light-mode .sub-card .mm {
+            /* Styles millimeter values in light mode */
             color: #FF0000;
+            /* Sets a red color, consistent with dark mode but on light background */
         }
+
         .light-mode input[type="text"] {
+            /* Styles the input field in light mode */
             background: #fff;
+            /* Sets a white background for contrast */
+
             color: #000;
+            /* Sets black text for readability */
+
             border: 1px solid #ccc;
+            /* Adds a light gray border for definition */
         }
+
         .light-mode .main-card {
+            /* Styles main cards in light mode */
             background: #f9f9f9;
+            /* Sets a very light gray background for the card */
+
             border: 1px solid #ddd;
+            /* Adds a light gray border for definition */
+
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            /* Adds a subtle black shadow for depth */
         }
-        .light-mode .main-card-title {
-            color: #333;
-        }
+
         .light-mode .sub-card {
+            /* Styles sub-cards in light mode */
             background: #e9e9e9;
+            /* Sets a light gray background for contrast */
+
             border: 1px solid #ccc;
+            /* Adds a light gray border for definition */
         }
+
         .light-mode .sub-card:hover {
+            /* Styles sub-cards on hover in light mode */
             background: #d9d9d9;
+            /* Lightens the background slightly for visual feedback */
         }
-        .light-mode .tooltip-text {
-            background: #666;
-            color: #fff;
-        }
-        button {
-            padding: 8px 16px;
-            font-size: 14px;
-            margin-top: 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            background-color: #007BFF;
+
+        .light-mode .clear-history {
+            /* Styles the clear history button in light mode */
+            background: #007BFF;
+            /* Maintains blue background for consistency */
+
             color: white;
+            /* Keeps white text for readability */
         }
-        button:hover {
-            background-color: #0056b3;
+
+        .light-mode .clear-history:hover {
+            /* Styles the clear history button on hover in light mode */
+            background: #0056b3;
+            /* Darkens the blue background for feedback */
         }
-        .copy-popup {
-            position: absolute;
-            background: #222;
+
+        .light-mode .tooltip-text {
+            /* Styles tooltips in light mode */
+            background: #666;
+            /* Sets a medium gray background for contrast */
+
             color: #fff;
+            /* Sets white text for readability */
+        }
+
+        .light-mode .history-panel::-webkit-scrollbar-track {
+            /* Styles the scrollbar track in light mode for Webkit browsers */
+            background: #fff;
+            /* Matches the panel background for a seamless look */
+        }
+
+        .light-mode .history-panel::-webkit-scrollbar-thumb {
+            /* Styles the scrollbar thumb in light mode for Webkit browsers */
+            background: #ccc;
+            /* Sets a light gray for the thumb, matching the light theme */
+        }
+
+        .footer {
+            /* Styles the footer containing theme toggle and GitHub link */
+            position: absolute;
+            /* Positions the footer relative to the body */
+
+            bottom: 10px;
+            /* Places it 10 pixels from the bottom of the body */
+
+            right: 10px;
+            /* Places it 10 pixels from the right of the body */
+
+            display: flex;
+            /* Uses Flexbox for layout */
+
+            align-items: center;
+            /* Vertically centers the icons/buttons */
+
+            gap: 15px;
+            /* Adds 15 pixels of spacing between icons/buttons */
+        }
+
+        .footer a, .footer button {
+            /* Styles the GitHub link and theme toggle button */
+            background: none;
+            /* Removes background for a clean look */
+
+            border: none;
+            /* Removes default border for a clean look */
+
+            cursor: pointer;
+            /* Changes the cursor to a hand on hover, indicating clickability */
+
+            font-size: 20px;
+            /* Sets a large font size for the icons (emoji) */
+
+            color: #fff;
+            /* Sets white color for visibility in dark mode */
+
+            text-decoration: none;
+            /* Removes underline from the GitHub link */
+
+            transition: color 0.2s;
+            /* Smoothly transitions the color on hover */
+        }
+
+        .light-mode .footer a, .light-mode .footer button {
+            /* Styles the footer elements in light mode */
+            color: #333;
+            /* Sets a dark gray color for visibility in light mode */
+        }
+
+        .footer a:hover, .footer button:hover {
+            /* Styles the footer elements on hover */
+            color: #007BFF;
+            /* Changes to blue for visual feedback */
+        }
+
+        .copy-popup {
+            /* Styles the popup that appears when copying text */
+            position: absolute;
+            /* Positions the popup relative to the body */
+
+            background: #222;
+            /* Sets a dark background for contrast */
+
+            color: #fff;
+            /* Sets white text for readability */
+
             padding: 5px 10px;
+            /* Adds internal spacing for the text */
+
             border-radius: 3px;
+            /* Rounds the corners slightly for a modern look */
+
             font-size: 12px;
+            /* Sets a small font size for compactness */
+
             pointer-events: none;
+            /* Prevents the popup from interfering with clicks */
+
             opacity: 0;
+            /* Starts invisible, transitioning to visible on copy */
+
             transition: opacity 0.3s;
+            /* Smoothly transitions the opacity for fade effects */
+
+            z-index: 1000;
+            /* Ensures the popup appears above other elements */
+        }
+
+        .copyright {
+            /* Styles the copyright notice at the bottom */
+            position: absolute;
+            /* Positions the copyright relative to the body */
+
+            bottom: 10px;
+            /* Places it 10 pixels from the bottom */
+
+            left: calc(50% + 170px);
+            /* Centers it under the main converter, accounting for history panel (340px / 2) */
+
+            transform: translateX(-50%);
+            /* Adjusts the position to center the copyright horizontally */
+
+            font-size: 14px;
+            /* Sets a readable font size */
+
+            color: #ccc;
+            /* Uses a light gray for contrast against the dark background */
+
+            text-align: center;
+            /* Centers the text for visual balance */
+
+            width: 200px;
+            /* Sets a fixed width to match the converter area */
+        }
+
+        .light-mode .copyright {
+            /* Styles the copyright in light mode */
+            color: #666;
+            /* Uses a medium gray for contrast against the light background */
         }
     </style>
 </head>
 <body class="dark-mode">
+    <!-- Begins the body section, starting in dark mode with class "dark-mode" -->
+
     <div class="history-panel" id="historyPanel">
+        <!-- Creates the left panel for displaying conversion history -->
         <h3>Input History</h3>
+        <!-- Displays the title of the history section -->
+
+        <div class="history-scroll"></div>
+        <!-- Defines the scrollable area for history items, allowing vertical scrolling -->
+
+        <div class="history-controls">
+            <!-- Contains controls for the history panel, such as the clear button -->
+            <button class="clear-history" onclick="clearHistory()">Clear History</button>
+            <!-- Button to clear all history entries, triggering the clearHistory function -->
+        </div>
     </div>
+
     <div class="converter">
+        <!-- Creates the main converter area on the right side -->
         <h2>Length Converter</h2>
+        <!-- Displays the title of the converter section -->
+
         <div class="input-container tooltip">
+            <!-- Wraps the input field with a tooltip for hover information -->
             <input type="text" id="inputLength" placeholder="Enter length (e.g., 2+3)">
+            <!-- Input field for users to enter length values, with a placeholder for guidance -->
+
             <span class="tooltip-text">Press Escape to clear</span>
+            <!-- Tooltip text that appears on hover, instructing users on clearing the input -->
         </div>
+
         <div class="result">
+            <!-- Contains the main conversion result cards -->
             <div class="main-card">
+                <!-- Main card for conversions assuming inches input -->
                 <div class="main-card-title">If input is inches:</div>
+                <!-- Title indicating the assumption of inches input -->
+
                 <div class="sub-cards">
+                    <!-- Container for sub-cards displaying inch and mm values -->
                     <div class="sub-card inch tooltip" id="inchOutputIn" onclick="copyToClipboard(this, this.textContent)">
+                        <!-- Sub-card for inches, clickable to copy the value, with a tooltip -->
                         0 in
+                        <!-- Initial display value for inches -->
+
                         <span class="tooltip-text">Click to copy</span>
+                        <!-- Tooltip text for copying the inch value -->
                     </div>
+
                     <div class="sub-card mm tooltip" id="mmOutputIn" onclick="copyToClipboard(this, this.textContent)">
+                        <!-- Sub-card for millimeters, clickable to copy, with a tooltip -->
                         0 mm
+                        <!-- Initial display value for millimeters -->
+
                         <span class="tooltip-text">Click to copy</span>
+                        <!-- Tooltip text for copying the millimeter value -->
                     </div>
                 </div>
             </div>
+
             <div class="main-card">
+                <!-- Main card for conversions assuming millimeters input -->
                 <div class="main-card-title">If input is millimeters:</div>
+                <!-- Title indicating the assumption of millimeters input -->
+
                 <div class="sub-cards">
+                    <!-- Container for sub-cards displaying mm and inch values -->
                     <div class="sub-card mm tooltip" id="mmOutputMm" onclick="copyToClipboard(this, this.textContent)">
+                        <!-- Sub-card for millimeters, clickable to copy, with a tooltip -->
                         0 mm
+                        <!-- Initial display value for millimeters -->
+
                         <span class="tooltip-text">Click to copy</span>
+                        <!-- Tooltip text for copying the millimeter value -->
                     </div>
+
                     <div class="sub-card inch tooltip" id="inchOutputMm" onclick="copyToClipboard(this, this.textContent)">
+                        <!-- Sub-card for inches, clickable to copy, with a tooltip -->
                         0 in
+                        <!-- Initial display value for inches -->
+
                         <span class="tooltip-text">Click to copy</span>
+                        <!-- Tooltip text for copying the inch value -->
                     </div>
                 </div>
             </div>
         </div>
-        <button onclick="toggleDarkMode()">Toggle Light Mode</button>
     </div>
+
+    <div class="footer">
+        <!-- Contains the theme toggle and GitHub link at the bottom right -->
+        <button id="themeToggle" onclick="toggleDarkMode()">☾</button>
+        <!-- Button to toggle between dark and light modes, starting with a moon (dark mode) icon -->
+
+        <a href="https://github.com/Jeffrey-L/In-mm-QuickConvert" target="_blank">🐙</a>
+        <!-- Link to the GitHub repository, opening in a new tab with an octopus emoji -->
+    </div>
+
+    <div class="copyright">© 2025 Jeffrey-L</div>
+    <!-- Displays the copyright notice at the bottom, centered under the main converter -->
 
     <script>
-        const inputField = document.getElementById('inputLength');
-        const inchOutputIn = document.getElementById('inchOutputIn');
-        const mmOutputIn = document.getElementById('mmOutputIn');
-        const mmOutputMm = document.getElementById('mmOutputMm');
-        const inchOutputMm = document.getElementById('inchOutputMm');
-        const historyPanel = document.getElementById('historyPanel');
+        // Begins the JavaScript section, embedded within the HTML for functionality
 
-        // Debounce function to delay logging
+        const inputField = document.getElementById('inputLength');
+        // Retrieves the input field element for length entry, stored in a constant
+
+        const inchOutputIn = document.getElementById('inchOutputIn');
+        // Retrieves the sub-card displaying inches when assuming inches input
+
+        const mmOutputIn = document.getElementById('mmOutputIn');
+        // Retrieves the sub-card displaying millimeters when assuming inches input
+
+        const mmOutputMm = document.getElementById('mmOutputMm');
+        // Retrieves the sub-card displaying millimeters when assuming millimeters input
+
+        const inchOutputMm = document.getElementById('inchOutputMm');
+        // Retrieves the sub-card displaying inches when assuming millimeters input
+
+        const historyScroll = document.querySelector('.history-scroll');
+        // Retrieves the scrollable area for history items, using a class selector
+
+        const themeToggle = document.getElementById('themeToggle');
+        // Retrieves the theme toggle button for dark/light mode switching
+
+        let historyCount = 0;
+        // Initializes a counter for tracking the number of history entries
+
+        const MAX_HISTORY = 500;
+        // Defines the maximum number of history entries allowed
+
         function debounce(func, wait) {
+            // Defines a debouncing function to delay function execution until after a pause
             let timeout;
             return function (...args) {
+                // Returns a closure that handles the debounce logic
                 clearTimeout(timeout);
+                // Clears any existing timeout to reset the delay
+
                 timeout = setTimeout(() => func.apply(this, args), wait);
+                // Sets a new timeout to execute the function after the specified wait time
             };
         }
 
-        // Format number to show up to 4 decimals if needed, otherwise trim trailing zeros
         function formatNumber(num) {
+            // Formats a number to show up to 4 decimal places, removing trailing zeros
             const fixed = Number(num).toFixed(4);
+            // Converts the number to a string with 4 decimal places
+
             return fixed.replace(/\.?0+$/, '');
+            // Removes trailing zeros and optional decimal point if no decimals remain
         }
 
-        // Convert length
         function convertLength() {
+            // Converts the input length into inch and millimeter equivalents
             let inputValue;
+            // Declares a variable to store the evaluated input value
+
             const inputText = inputField.value.trim();
+            // Gets the current input value, removing leading/trailing whitespace
 
             try {
-                inputValue = eval(inputText) || 0;
-                if (typeof inputValue !== 'number' || isNaN(inputValue)) {
-                    inputValue = 0;
-                }
+                // Attempts to evaluate the input as a mathematical expression
+                inputValue = eval(inputText.replace(/[^0-9+\-*/.x]/g, '')) || 0;
+                // Evaluates the input, replacing non-numeric/math characters with empty strings, defaulting to 0 if invalid
+
+                if (typeof inputValue !== 'number' || isNaN(inputValue)) inputValue = 0;
+                // Ensures inputValue is a number, defaulting to 0 if not
             } catch (e) {
+                // Catches any evaluation errors (e.g., invalid expressions)
                 inputValue = 0;
+                // Sets inputValue to 0 if an error occurs
             }
 
-            // Assuming input is inches
             const inchesToMm = inputValue * 25.4;
-            inchOutputIn.textContent = `${formatNumber(inputValue)} in`;
-            mmOutputIn.textContent = `${formatNumber(inchesToMm)} mm`;
+            // Converts the input value from inches to millimeters using the standard ratio
 
-            // Assuming input is millimeters
+            inchOutputIn.textContent = `${formatNumber(inputValue)} in`;
+            // Updates the inch output for inches input with formatted value
+
+            mmOutputIn.textContent = `${formatNumber(inchesToMm)} mm`;
+            // Updates the millimeter output for inches input with formatted value
+
             const mmToInches = inputValue / 25.4;
+            // Converts the input value from millimeters to inches
+
             mmOutputMm.textContent = `${formatNumber(inputValue)} mm`;
+            // Updates the millimeter output for millimeters input with formatted value
+
             inchOutputMm.textContent = `${formatNumber(mmToInches)} in`;
+            // Updates the inch output for millimeters input with formatted value
 
             return { inputText, inputValue, inchesToMm, mmToInches };
+            // Returns an object with the input and conversion results for logging
         }
 
-        // Log input with conversions to history panel
         function logInput({ inputText, inputValue, inchesToMm, mmToInches }) {
-            if (!inputText || inputValue === 0) return;
+            // Logs a conversion to the history panel if valid
+            if (!inputText || inputValue === 0 || historyCount >= MAX_HISTORY) return;
+            // Exits if the input is empty, value is 0, or history limit is reached
 
             const timestamp = new Date().toLocaleTimeString();
+            // Gets the current time in a readable format (e.g., "4:02:21 PM")
+
             const historyItem = document.createElement('div');
+            // Creates a new div element for the history entry
+
             historyItem.className = 'history-item';
+            // Assigns the 'history-item' class for styling
+
             historyItem.innerHTML = `
                 <div class="history-timestamp">${timestamp}</div>
                 <div class="history-input">${inputText} = ${formatNumber(inputValue)}</div>
                 <div class="history-conversions">
-                    If in: <span class="inch">${formatNumber(inputValue)}</span> in = <span class="mm">${formatNumber(inchesToMm)}</span> mm<br>
-                    If mm: <span class="mm">${formatNumber(inputValue)}</span> mm = <span class="inch">${formatNumber(mmToInches)}</span> in
+                    <div class="conversion-row">
+                        <div class="label">If in:</div>
+                        <div class="sub-cards">
+                            <div class="sub-card inch tooltip" onclick="copyToClipboard(this, this.textContent)">
+                                ${formatNumber(inputValue)} in
+                                <span class="tooltip-text">Click to copy</span>
+                            </div>
+                            <div class="sub-card mm tooltip" onclick="copyToClipboard(this, this.textContent)">
+                                ${formatNumber(inchesToMm)} mm
+                                <span class="tooltip-text">Click to copy</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="conversion-row">
+                        <div class="label">If mm:</div>
+                        <div class="sub-cards">
+                            <div class="sub-card mm tooltip" onclick="copyToClipboard(this, this.textContent)">
+                                ${formatNumber(inputValue)} mm
+                                <span class="tooltip-text">Click to copy</span>
+                            </div>
+                            <div class="sub-card inch tooltip" onclick="copyToClipboard(this, this.textContent)">
+                                ${formatNumber(mmToInches)} in
+                                <span class="tooltip-text">Click to copy</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             `;
-            historyPanel.appendChild(historyItem);
-            historyPanel.scrollTop = historyPanel.scrollHeight;
+            // Sets the HTML content for the history item, including timestamp, input, and conversions with tooltips
+
+            historyScroll.insertBefore(historyItem, historyScroll.firstElementChild);
+            // Inserts the new history item at the top of the scrollable area, making new entries appear first
+
+            historyCount++;
+            // Increments the history counter
+
+            if (historyCount > MAX_HISTORY) {
+                // Checks if the history exceeds the maximum limit
+                historyScroll.removeChild(historyScroll.lastElementChild);
+                // Removes the oldest entry (last child) to maintain the limit
+
+                historyCount--;
+                // Decrements the counter to reflect the removal
+            }
+            // Removed automatic scroll to top, as per the user's latest request
         }
 
-        // Copy text to clipboard with popup
+        function clearHistory() {
+            // Clears all history entries
+            while (historyScroll.children.length > 0) {
+                // Continues removing children until none remain
+                historyScroll.removeChild(historyScroll.firstElementChild);
+                // Removes the first child (oldest entry) each iteration
+            }
+            historyCount = 0;
+            // Resets the history counter to 0
+        }
+
         function copyToClipboard(element, text) {
-            const numberOnly = text.split(' ')[0]; // Extract number without unit
+            // Copies the text content of an element to the clipboard
+            const numberOnly = text.split(' ')[0];
+            // Extracts only the numeric part of the text (e.g., "6.52" from "6.52 in")
+
             navigator.clipboard.writeText(numberOnly).then(() => {
+                // Uses the Clipboard API to write the text to the clipboard
                 showCopyPopup(element, numberOnly);
+                // Displays a popup notification with the copied value
             });
         }
 
-        // Show popup near mouse cursor
         function showCopyPopup(element, text) {
+            // Displays a popup notification when text is copied
             let popup = document.querySelector('.copy-popup');
+            // Attempts to find an existing popup element
+
             if (!popup) {
+                // If no popup exists
                 popup = document.createElement('div');
+                // Creates a new div for the popup
+
                 popup.className = 'copy-popup';
+                // Assigns the 'copy-popup' class for styling
+
                 document.body.appendChild(popup);
+                // Adds the popup to the body of the document
             }
             popup.textContent = `Copied: ${text}`;
+            // Sets the popup text to indicate what was copied
+
             const rect = element.getBoundingClientRect();
+            // Gets the position and size of the clicked element
+
             popup.style.left = `${rect.left + window.scrollX + rect.width / 2}px`;
+            // Positions the popup horizontally centered over the element, accounting for scroll
+
             popup.style.top = `${rect.top + window.scrollY - 30}px`;
+            // Positions the popup 30 pixels above the element, accounting for scroll
+
             popup.style.opacity = '1';
-            setTimeout(() => {
-                popup.style.opacity = '0';
-            }, 1000); // Fade out after 1 second
+            // Makes the popup fully visible
+
+            setTimeout(() => popup.style.opacity = '0', 1000);
+            // Fades out the popup after 1 second (1000ms)
         }
 
-        // Dark mode toggle
         function toggleDarkMode() {
+            // Toggles between dark and light modes
             document.body.classList.toggle('dark-mode');
+            // Adds or removes the 'dark-mode' class from the body
+
             document.body.classList.toggle('light-mode');
-            const button = document.querySelector('button');
-            button.textContent = document.body.classList.contains('dark-mode') ? 'Toggle Light Mode' : 'Toggle Dark Mode';
+            // Adds or removes the 'light-mode' class from the body
+
+            themeToggle.textContent = document.body.classList.contains('dark-mode') ? '☾' : '☀';
+            // Updates the theme toggle button to show a moon (☾) in dark mode or sun (☀) in light mode
         }
 
-        // Debounced logging
-        const logAfterPause = debounce((result) => logInput(result), 500);
-
-        // Event listeners
         inputField.addEventListener('input', () => {
+            // Listens for input changes in the input field for real-time updates
+            inputField.value = inputField.value.replace(/[^0-9+\-*/.x]/g, '');
+            // Filters the input to allow only numbers, math symbols (+, -, *, /, .), and 'x' for multiplication
+
             const result = convertLength();
+            // Calls the convertLength function to update outputs
+
             logAfterPause(result);
+            // Logs the conversion to history after a debounce delay
         });
+
+        const logAfterPause = debounce((result) => logInput(result), 500);
+        // Creates a debounced version of logInput, delaying execution by 500ms to prevent excessive logging on rapid input
+
         document.addEventListener('keydown', (event) => {
+            // Listens for key presses on the document for clearing functionality
             if (event.key === 'Escape') {
+                // Checks if the pressed key is Escape
                 inputField.value = '';
+                // Clears the input field
+
                 convertLength();
+                // Updates the outputs with empty values
             }
         });
 
-        // Initial conversion
         convertLength();
+        // Initializes the conversion with default values (0) on page load
     </script>
 </body>
 </html>
